@@ -105,6 +105,7 @@ public class SnakeBoard extends JFrame implements MouseListener, KeyListener {
 		base.add(leftGameBoard, BorderLayout.WEST);
 		base.add(rightBoard, BorderLayout.CENTER);
 
+		controls[0][0].setText(String.valueOf(score));
 		pack();
 	}
 
@@ -223,7 +224,7 @@ public class SnakeBoard extends JFrame implements MouseListener, KeyListener {
 				&& snake.returnPositions().get(0).y == currentApple.y) {
 			// regenerate the apple if the snake just ate it
 			score++;
-			JOptionPane.showMessageDialog(null, "The snake just ate " + score + " apples already!");
+			controls[0][0].setText(String.valueOf(score));
 			generateApple();
 		}
 		squares[currentApple.x][currentApple.y].setBackground(Color.RED);
