@@ -18,59 +18,53 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.LineBorder;
 
-
-
-
-
-
-public class SnakeBoard extends JFrame implements MouseListener, KeyListener{
+public class SnakeBoard extends JFrame implements MouseListener, KeyListener {
 	private JPanel base = new JPanel();
 	private JPanel leftGameBoard = new JPanel();
 	private JPanel rightBoard = new JPanel();
 	private JPanel innerRightControls = new JPanel();
 	private JLabel[][] squares = new JLabel[Constants.BOARD_SIZE][Constants.BOARD_SIZE];
 	private JButton[][] controls = new JButton[3][3];
-	
-	
-	Apple currentApple= new Apple();
-	
-	
+
+	Apple currentApple = new Apple();
+	private int score=0;
 	private Snake snake;
 	
 	SnakeBoard() {
 		super("Snake!");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setPreferredSize(new Dimension(700, 500)); //preferredSize
+		setPreferredSize(new Dimension(700, 500)); // preferredSize
 		setContentPane(base);
 		base.setLayout(new BorderLayout());
 
 		LineBorder lb = new LineBorder(Color.BLACK);
 
-		leftGameBoard.setLayout(new GridLayout(Constants.BOARD_SIZE, Constants.BOARD_SIZE));
+		leftGameBoard.setLayout(new GridLayout(Constants.BOARD_SIZE,
+				Constants.BOARD_SIZE));
 
 		rightBoard.setBorder(lb);
 		leftGameBoard.setPreferredSize(new Dimension(250, 500));
 
 		rightBoard.setLayout(new GridLayout(3, 3));
 		innerRightControls.setLayout(new GridLayout(3, 3));
-	
-	//1
-	for (int i=0; i<Constants.BOARD_SIZE; i++)
-		for(int j=0; j<Constants.BOARD_SIZE; j++){
-			squares[i][j]=new JLabel();
-			squares[i][j].setBackground(Color.LIGHT_GRAY);
-			squares[i][j].setOpaque(true);
-			leftGameBoard.add(squares[i][j]);
-			squares[i][j].setBorder(lb);
-		}
-		for(int i=0; i<3; i++)
-			for(int j=0; j<3; j++){
-				controls[i][j]=new JButton();
-		   		rightBoard.add(controls[i][j]);
-		   		innerRightControls.add(controls[i][j]);
-		   		controls[i][j].setBorder(lb);
-		   		controls[i][j].addMouseListener(this);
-		}
+
+		// 1
+		for (int i = 0; i < Constants.BOARD_SIZE; i++)
+			for (int j = 0; j < Constants.BOARD_SIZE; j++) {
+				squares[i][j] = new JLabel();
+				squares[i][j].setBackground(Color.LIGHT_GRAY);
+				squares[i][j].setOpaque(true);
+				leftGameBoard.add(squares[i][j]);
+				squares[i][j].setBorder(lb);
+			}
+		for (int i = 0; i < 3; i++)
+			for (int j = 0; j < 3; j++) {
+				controls[i][j] = new JButton();
+				rightBoard.add(controls[i][j]);
+				innerRightControls.add(controls[i][j]);
+				controls[i][j].setBorder(lb);
+				controls[i][j].addMouseListener(this);
+			}
 		rightBoard.add(innerRightControls);
 		for (int i = 0; i < 3; i++)
 			for (int j = 0; j < 3; j++) {
@@ -79,7 +73,7 @@ public class SnakeBoard extends JFrame implements MouseListener, KeyListener{
 				else
 					rightBoard.add(new JLabel());
 			}
-		
+
 		{
 			controls[0][0].setEnabled(false);
 			controls[0][0].setBackground(Color.WHITE);
@@ -112,7 +106,8 @@ public class SnakeBoard extends JFrame implements MouseListener, KeyListener{
 		base.add(rightBoard, BorderLayout.CENTER);
 
 		pack();
-	}	
+	}
+
 	public void moveSnake(String direction) {
 		// if eating himself
 		if (!snake.Move(direction, currentApple)) {
@@ -121,9 +116,10 @@ public class SnakeBoard extends JFrame implements MouseListener, KeyListener{
 		} else {
 			updateBoard(snake.returnPositions());
 		}
-	}	
-	
-	public void MouseClicked(MouseEvent e){
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
 		if (e.getSource() == controls[0][1]) {
 			moveSnake(Constants.UP);
 		}
@@ -140,6 +136,8 @@ public class SnakeBoard extends JFrame implements MouseListener, KeyListener{
 			moveSnake(Constants.DOWN);
 		}
 	}
+	
+	@Override
 	public void keyPressed(KeyEvent e) {
 		int keyCode = e.getKeyCode();
 		switch (keyCode) {
@@ -157,7 +155,7 @@ public class SnakeBoard extends JFrame implements MouseListener, KeyListener{
 			break;
 		}
 	}
-	
+
 	private void generateApple() {
 
 		Random r = new Random();
@@ -165,17 +163,16 @@ public class SnakeBoard extends JFrame implements MouseListener, KeyListener{
 		int y = r.nextInt(Constants.BOARD_SIZE);
 
 		currentApple = new Apple();
-		currentApple.setLocation(x,y);
+		currentApple.setLocation(x, y);
 
 		int nrOfTries = 0;
 
-		 while (appleIntersectsWithSnake())
-		{
-			 
-			 Random r2 = new Random();
-				int x2 = r2.nextInt(Constants.BOARD_SIZE);
-				int y2 = r2.nextInt(Constants.BOARD_SIZE);
-			 currentApple.setLocation(x2,y2);
+		while (appleIntersectsWithSnake()) {
+
+			Random r2 = new Random();
+			int x2 = r2.nextInt(Constants.BOARD_SIZE);
+			int y2 = r2.nextInt(Constants.BOARD_SIZE);
+			currentApple.setLocation(x2, y2);
 			nrOfTries++;
 			if (nrOfTries > 100000) {
 				JOptionPane.showMessageDialog(null, "You won!");
@@ -183,17 +180,23 @@ public class SnakeBoard extends JFrame implements MouseListener, KeyListener{
 			}
 		}
 	}
+
 	private boolean appleIntersectsWithSnake() {
 		boolean intersects = false;
+
 		for (int i = 0; i < snake.getLength(); i++) {
 			if (snake.returnPositions().get(i).x == currentApple.x
-					&& snake.returnPositions().get(i).y == currentApple.y) {
+					&& snake.returnPositions().get(i).y == currentApple.y){
 				return true;
 			}
 		}
 		return intersects;
 	}
-
+	//
+	//partea aia nu am facut-o inca
+	/// |
+	// nu mai trebuie facut nimic jos
+ 
 	/**
 	 * Updates the GUI with the new coordinates of the snake
 	 * 
@@ -219,6 +222,8 @@ public class SnakeBoard extends JFrame implements MouseListener, KeyListener{
 		if (snake.returnPositions().get(0).x == currentApple.x
 				&& snake.returnPositions().get(0).y == currentApple.y) {
 			// regenerate the apple if the snake just ate it
+			score++;
+			JOptionPane.showMessageDialog(null, "The snake just ate " + score + " apples already!");
 			generateApple();
 		}
 		squares[currentApple.x][currentApple.y].setBackground(Color.RED);
@@ -232,52 +237,46 @@ public class SnakeBoard extends JFrame implements MouseListener, KeyListener{
 				squares[i][j].setBackground(Color.LIGHT_GRAY);
 			}
 	}
+
 	public static void main(String args[]) {
 		SnakeBoard sb = new SnakeBoard();
 		sb.setVisible(true);
 	}
-	
+
 	@Override
 	public void keyReleased(KeyEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void keyTyped(KeyEvent e) {
 		// TODO Auto-generated method stub
-		
-	}
 
-	@Override
-	public void mouseClicked(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void mouseEntered(MouseEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void mouseExited(MouseEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void mousePressed(MouseEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
-	
 
 }
