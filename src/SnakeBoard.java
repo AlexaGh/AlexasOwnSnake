@@ -23,18 +23,26 @@ public class SnakeBoard extends JFrame implements MouseListener, KeyListener {
 	private JPanel leftGameBoard = new JPanel();
 	private JPanel rightBoard = new JPanel();
 	private JPanel innerRightControls = new JPanel();
-	private JLabel[][] squares = new JLabel[Constants.BOARD_SIZE][Constants.BOARD_SIZE];
+	private JLabel[][] squares;
 	private JButton[][] controls = new JButton[3][3];
 
-	Apple currentApple = new Apple();
-	private int score=0;
+	private Apple currentApple = new Apple();
+	private int score = 0;
 	private Snake snake;
-	
+
+	private boolean canGoThroughWalls;
+
 	SnakeBoard() {
 		super("Snake!");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setPreferredSize(new Dimension(700, 500)); // preferredSize
 		setContentPane(base);
+
+		canWeGoThroughWalls();
+		getBoardSize();
+
+		squares = new JLabel[Constants.BOARD_SIZE][Constants.BOARD_SIZE];
+
 		base.setLayout(new BorderLayout());
 
 		LineBorder lb = new LineBorder(Color.BLACK);
@@ -96,7 +104,7 @@ public class SnakeBoard extends JFrame implements MouseListener, KeyListener {
 			controls[2][1].setBackground(Color.LIGHT_GRAY);
 			controls[2][1].setText(Constants.DOWN);
 		}
-		snake = new Snake();
+		snake = new Snake(canGoThroughWalls);
 		generateApple();
 		updateBoard(snake.returnPositions());
 		base.addKeyListener(this);
@@ -109,9 +117,28 @@ public class SnakeBoard extends JFrame implements MouseListener, KeyListener {
 		pack();
 	}
 
+	private void getBoardSize() {
+		String sizeString = JOptionPane.showInputDialog("Dimensiunea tablei: ");
+		
+		
+		Integer size = Integer.valueOf(sizeString);
+		if (size > 7 && size < 30)
+			Constants.BOARD_SIZE = size;
+	}
+
+	private void canWeGoThroughWalls() {
+		int reply = JOptionPane.showConfirmDialog(null,
+				"Sa treaca prin pereti?", "Optiune", JOptionPane.YES_NO_OPTION);
+		if (reply == JOptionPane.YES_OPTION) {
+			canGoThroughWalls = true;
+		} else {
+			canGoThroughWalls = false;
+		}
+	}
+
 	public void moveSnake(String direction) {
 		// if eating himself
-		if (!snake.Move(direction, currentApple)) {
+		if (!snake.move(direction, currentApple)) {
 			JOptionPane.showMessageDialog(null, "You lost");
 			System.exit(0);
 		} else {
@@ -137,7 +164,7 @@ public class SnakeBoard extends JFrame implements MouseListener, KeyListener {
 			moveSnake(Constants.DOWN);
 		}
 	}
-	
+
 	@Override
 	public void keyPressed(KeyEvent e) {
 		int keyCode = e.getKeyCode();
@@ -169,7 +196,6 @@ public class SnakeBoard extends JFrame implements MouseListener, KeyListener {
 		int nrOfTries = 0;
 
 		while (appleIntersectsWithSnake()) {
-
 			Random r2 = new Random();
 			int x2 = r2.nextInt(Constants.BOARD_SIZE);
 			int y2 = r2.nextInt(Constants.BOARD_SIZE);
@@ -187,17 +213,18 @@ public class SnakeBoard extends JFrame implements MouseListener, KeyListener {
 
 		for (int i = 0; i < snake.getLength(); i++) {
 			if (snake.returnPositions().get(i).x == currentApple.x
-					&& snake.returnPositions().get(i).y == currentApple.y){
+					&& snake.returnPositions().get(i).y == currentApple.y) {
 				return true;
 			}
 		}
 		return intersects;
 	}
+
 	//
-	//partea aia nu am facut-o inca
-	/// |
+	// partea aia nu am facut-o inca
+	// / |
 	// nu mai trebuie facut nimic jos
- 
+
 	/**
 	 * Updates the GUI with the new coordinates of the snake
 	 * 

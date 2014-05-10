@@ -9,7 +9,9 @@ public class Snake {
 
 	private int length;
 
-	public Snake() {
+	private boolean canGoThroughWalls;
+
+	public Snake(boolean canGoThroughWalls) {
 		positions.add(new Point(2, 3));
 		positions.add(new Point(3, 3));
 		positions.add(new Point(4, 3));
@@ -18,16 +20,17 @@ public class Snake {
 
 		currentDirection = Constants.UP;
 
+		this.canGoThroughWalls = canGoThroughWalls;
 		this.setLength(5);
 	}
 
-	public boolean Move(String direction, Apple currentApple) {
+	public boolean move(String direction, Apple currentApple) {
 
 		if (direction.equals(Constants.UP)) {
 
 			Point newPoint = new Point(positions.get(0).x - 1,
 					positions.get(0).y);
-			if (!eatingMyself(newPoint)) {
+			if (!eatingMyselfOrHitWall(newPoint)) {
 				nextPositionOfHead = newPoint;
 				if (headIsEatingApple(currentApple)) {
 					positions.add(currentApple);
@@ -44,7 +47,7 @@ public class Snake {
 
 			Point newPoint = new Point(positions.get(0).x,
 					positions.get(0).y + 1);
-			if (!eatingMyself(newPoint)) {
+			if (!eatingMyselfOrHitWall(newPoint)) {
 				nextPositionOfHead = newPoint;
 				if (headIsEatingApple(currentApple)) {
 					positions.add(currentApple);
@@ -61,7 +64,7 @@ public class Snake {
 
 			Point newPoint = new Point(positions.get(0).x,
 					positions.get(0).y - 1);
-			if (!eatingMyself(newPoint)) {
+			if (!eatingMyselfOrHitWall(newPoint)) {
 				nextPositionOfHead = newPoint;
 				if (headIsEatingApple(currentApple)) {
 					positions.add(currentApple);
@@ -78,7 +81,7 @@ public class Snake {
 
 			Point newPoint = new Point(positions.get(0).x + 1,
 					positions.get(0).y);
-			if (!eatingMyself(newPoint)) {
+			if (!eatingMyselfOrHitWall(newPoint)) {
 				nextPositionOfHead = newPoint;
 				if (headIsEatingApple(currentApple)) {
 					positions.add(currentApple);
@@ -92,7 +95,7 @@ public class Snake {
 				return false;
 
 		} else if (direction.equals(Constants.STEP)) {
-			return Move(currentDirection, currentApple);
+			return move(currentDirection, currentApple);
 		} else
 			return false;
 	}
@@ -127,14 +130,22 @@ public class Snake {
 		}
 	}
 
-	private boolean eatingMyself(Point newPoint) {
-		boolean eating = false;
+	private boolean eatingMyselfOrHitWall(Point newPoint) {
+		boolean eatingHimselfOrHitWall = false;
 
 		for (int i = 1; i < length; i++)
 			if (newPoint.x == positions.get(i).x
 					&& newPoint.y == positions.get(i).y)
-				eating = true;
-		return eating;
+				eatingHimselfOrHitWall = true;
+
+		if (!canGoThroughWalls) {
+			if (newPoint.x < 0 || newPoint.x >= Constants.BOARD_SIZE
+					|| newPoint.y < 0 || newPoint.y >= Constants.BOARD_SIZE) {
+				eatingHimselfOrHitWall = true;
+			}
+		}
+
+		return eatingHimselfOrHitWall;
 	}
 
 	public ArrayList<Point> returnPositions() {
